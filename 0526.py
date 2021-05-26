@@ -198,4 +198,6 @@ init_volume = upbit.get_balance(ticker)
 print("init_balance =",init_balance,"\ninit_volume =",init_volume)
 order=upbit.get_order(ticker, state="wait")
 print(order,len(order))
+if len(order)>0 and order[0]['ord_type']=='limit'
+    print(True)
 asyncio.run(main(ticker))

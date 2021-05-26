@@ -198,6 +198,6 @@ init_volume = upbit.get_balance(ticker)
 print("init_balance =",init_balance,"\ninit_volume =",init_volume)
 order=upbit.get_order(ticker, state="wait")
 print(order,type(order))
-if order[0]=='':
+if order(0)=='':
     print(True)
 asyncio.run(main(ticker))

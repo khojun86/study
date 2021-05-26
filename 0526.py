@@ -147,12 +147,12 @@ async def upbit_ws_client(ticker):
                     selluuid = sellorder['uuid']
                     print('sell order =',selluuid)
                 print(state,buyprice)
-            #### 30tick close 의 ma 10 가 ma 60 을 돌파할 때 매수####
+            #### 30tick close 의 ma 10 가 ma 50 을 돌파할 때 매수####  ## 0526 update
             if state == 'ready':
-                tick30_ma60 = grouptickclose[5:65].mean()
+                tick30_ma50 = grouptickclose[15:65].mean()
                 tick30_ma10last = grouptickclose[54:64].mean()
                 tick30_ma10 = grouptickclose[55:65].mean()#;print(state)
-                if tick30_ma10last <= tick30_ma60 < tick30_ma10 and np.isnan(tick30_ma60) == False:
+                if tick30_ma10last <= tick30_ma50 < tick30_ma10 and np.isnan(tick30_ma50) == False:
                     print('매수지점', data["trade_price"])
                     if buyprice==firstbuyprice:
                         buy=upbit.buy_market_order(ticker, buyprice)
@@ -166,7 +166,9 @@ async def upbit_ws_client(ticker):
                 boughtedbalance += buyprice
                 boughtedvolume += upbit.get_balance(ticker)-init_volume
                 abp = boughtedbalance/boughtedvolume
-                print('누적 Balance =',boughtedbalance,'init Volume',init_volume,'누적 Volume =',boughtedvolume,'ABP =',round(abp,2),'\n','매도주문')
+                print('누적 Balance =',boughtedbalance,'init Volume',init_volume,'누적 Volume =',round(boughtedvolume,2),'ABP =',round(abp,2))
+                print('ABP+1%',round(abp*1.01,2),'ABP+2%',round(abp*1.02,2),'ABP+3%',round(abp*1.03,2))
+                      # ,'\n','매도주문')
                 if sellprice == 0:
                     sellprice = int(abp*(1+margin/100)/tic)*tic
                 else:
@@ -177,11 +179,23 @@ async def upbit_ws_client(ticker):
                 time.sleep(1)
                 selluuid = sellorder['uuid']
                 pprint.pprint(sellorder)
-            # if
-
 
 
             if nowTime != prevTime:
+                #### 0526 update 매도 주문 체결 시 초기화 ####
+                order = upbit.get_order(ticker, state="wait")
+                sellstate = 0
+                if len(order) != 0:
+                    for i in order:
+                        if i['uuid'] == selluuid:
+                            sellstate += 1
+                        else:
+                            sellstate += 0
+                    if sellstate == 0:
+                        boughtedbalance = 0;boughtedvolume = 0;sellprice = 0;selluuid=''
+                        init_balance = upbit.get_balance("KRW")
+                        init_volume = upbit.get_balance(ticker)
+                        print("매도체결\n","init_balance =", init_balance, "\ninit_volume =", init_volume)
                 prevTime = nowTime
 
 async def main(ticker):
@@ -196,16 +210,4 @@ upbit = pyupbit.Upbit(access_key, secret_key)
 init_balance = upbit.get_balance("KRW")
 init_volume = upbit.get_balance(ticker)
 print("init_balance =",init_balance,"\ninit_volume =",init_volume)
-
-order=upbit.get_order(ticker, state="wait")
-print(order,len(order))
-sellstate=0
-for i in order:
-    if i['volume']=='0.40445412':
-        sellstate+=1
-    else:
-        sellstate+=0
-
-if sellstate == 1:
-    print(True)
 asyncio.run(main(ticker))

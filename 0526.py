@@ -196,7 +196,16 @@ upbit = pyupbit.Upbit(access_key, secret_key)
 init_balance = upbit.get_balance("KRW")
 init_volume = upbit.get_balance(ticker)
 print("init_balance =",init_balance,"\ninit_volume =",init_volume)
+
 order=upbit.get_order(ticker, state="wait")
 print(order,len(order))
-print(order['uuid'])
+sellstate=0
+for i in order:
+    if i['volume']=='0.40445412':
+        sellstate+=1
+    else:
+        sellstate+=0
+
+if sellstate == 1:
+    print(True)
 asyncio.run(main(ticker))

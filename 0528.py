@@ -214,8 +214,11 @@ print("init_balance =",init_balance,"\ninit_volume =",init_volume)
 df=pyupbit.get_ohlcv(ticker,interval="minute60",count=20)
 lastlow=np.array(df['low'].tolist())
 nexthigh=np.array(df['high'].tolist())
-print(nexthigh[1:len(nexthigh)]);print(lastlow[0:len(nexthigh)-1])
+#print(nexthigh[1:len(nexthigh)]);print(lastlow[0:len(nexthigh)-1])
 nexthigh=nexthigh[1:len(nexthigh)]
 lastlow=lastlow[0:len(lastlow)-1]
-print((nexthigh-lastlow)/lastlow*100)
+#print((nexthigh-lastlow)/lastlow*100)
+range=(nexthigh-lastlow)/lastlow*100
+range=np.mean(range)
+print(range)
 asyncio.run(main(ticker))

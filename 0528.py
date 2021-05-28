@@ -1,8 +1,6 @@
 from pyupbit import WebSocketManager, pd
 import pyupbit
 import time
-import sys
-import numpy
 import websockets
 import asyncio
 import json
@@ -47,7 +45,7 @@ async def upbit_ws_client(ticker):
     grouptickclose = np.array([])
     state = 'none'
     bbl_last = 0; bbl=0
-    margin=2.5
+    # margin=2.5
     # 초기 설정
     close = pyupbit.get_ohlcv(ticker, 'minute1', 1)
     close = close['close']
@@ -219,6 +217,6 @@ nexthigh=nexthigh[1:len(nexthigh)]
 lastlow=lastlow[0:len(lastlow)-1]
 #print((nexthigh-lastlow)/lastlow*100)
 range=(nexthigh-lastlow)/lastlow*100
-range=np.mean(range)
+margin=float(np.mean(range)/1.5)
 print(range)
 asyncio.run(main(ticker))

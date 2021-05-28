@@ -215,5 +215,5 @@ df=pyupbit.get_ohlcv(ticker,interval="minute30")
 lastlow=df['low']
 nexthigh=df['high']
 print(lastlow[0:199]);print(nexthigh[1:200])
-print(lastlow.iloc(0:199)-nexthigh.iloc(1:200))
+print(lastlow.iloc[0:199]-nexthigh.iloc[1:200])
 asyncio.run(main(ticker))

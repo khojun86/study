@@ -218,5 +218,5 @@ lastlow=lastlow[0:len(lastlow)-1]
 #print((nexthigh-lastlow)/lastlow*100)
 range=(nexthigh-lastlow)/lastlow*100
 margin=float(np.mean(range)/1.5)
-print(margin)
+print(range,"\n마진",margin)
 asyncio.run(main(ticker))

@@ -211,7 +211,7 @@ init_balance = upbit.get_balance("KRW")
 init_volume = upbit.get_balance(ticker)
 print("init_balance =",init_balance,"\ninit_volume =",init_volume)
 ####  ohlcv 변동 폭 계산 ####
-df=pyupbit.get_ohlcv(ticker,count=20)
+df=pyupbit.get_ohlcv(ticker,interval="minute240",count=20)
 lastlow=np.array(df['low'].tolist())
 nexthigh=np.array(df['high'].tolist())
 #print(nexthigh[1:len(nexthigh)]);print(lastlow[0:len(nexthigh)-1])

@@ -43,7 +43,7 @@ async def upbit_ws_client(ticker):
     buyprice = firstbuyprice;sellprice = 0
     boughtedbalance = 0;boughtedvolume = 0;boughtedprice = 0
     grouptickclose = np.array([])
-    state = 'none'
+    state = 'none';selluuid=''
     # 초기 설정
     init_balance = upbit.get_balance("KRW")
     init_volume = upbit.get_balance(ticker)

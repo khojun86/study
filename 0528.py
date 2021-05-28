@@ -214,5 +214,6 @@ print("init_balance =",init_balance,"\ninit_volume =",init_volume)
 df=pyupbit.get_ohlcv(ticker,interval="minute30")
 lastlow=df['low']
 nexthigh=df['high']
-print(lastlow[0:198]);print(nexthigh[1:199])
+print(lastlow[0:199]);print(nexthigh[1:200])
+print(lastlow[0:199]-nexthigh[1:200])
 asyncio.run(main(ticker))

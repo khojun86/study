@@ -174,7 +174,7 @@ async def upbit_ws_client(ticker):
                 if state == 'buy' and nowTime != prevTime:
                     state = 'none';print(state)
                     boughtedbalance += buyprice
-                    boughtedvolume = upbit.get_balance(ticker)-init_volume
+                    boughtedvolume += upbit.get_balance(ticker)-init_volume
                     abp = boughtedbalance/boughtedvolume
                     print('누적 Balance =',boughtedbalance,'init Volume',init_volume,'누적 Volume =',round(boughtedvolume,2),'ABP =',round(abp,2))
                     print('ABP+1%',round(abp*1.01,2),'ABP+2%',round(abp*1.02,2),'ABP+3%',round(abp*1.03,2))

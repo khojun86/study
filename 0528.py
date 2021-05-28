@@ -212,10 +212,7 @@ init_volume = upbit.get_balance(ticker)
 print("init_balance =",init_balance,"\ninit_volume =",init_volume)
 ####  ohlcv 변동 폭 계산 ####
 df=pyupbit.get_ohlcv(ticker,interval="minute30")
-lastlow=df['low']
-nexthigh=df['high']
-print(df)
-print(np.array(nexthigh.tolist()))
-print(nexthigh[1:200]);print(lastlow[0:199])
-print(nexthigh.iloc[1:200]-lastlow.iloc[0:199])
+lastlow=np.array(df['low'].tolist()))
+nexthigh=np.array(df['high'].tolist()))
+print(nexthigh[1:len(nexthigh)]);print(lastlow[0:len(nexthigh)-1])
 asyncio.run(main(ticker))

@@ -57,7 +57,7 @@ async def upbit_ws_client(ticker):
     lastlow = lastlow[0:len(lastlow) - 1]
     # print((nexthigh-lastlow)/lastlow*100)
     range = (nexthigh - lastlow) / lastlow * 100
-    margin = float(np.mean(range) / 1.0)
+    margin = float(np.mean(range) / 2.0)
     ## tic 판단
     close = nexthigh[-1]
     if close > 2000000:

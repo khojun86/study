@@ -97,118 +97,118 @@ async def upbit_ws_client(ticker):
         while True:
             try:
                 data = await websocket.recv()
+
+                data = json.loads(data)
+                # print(data)
+                ##### 30 tic close : tickprice[tickgroup-1] ####
+                if len(tickprice) < tickgroup:
+                    tickprice = np.append(tickprice, [data["trade_price"]])
+                ##### grouptickclose for ma caculation ####
+                else:
+                    if len(grouptickclose) < 65:
+                        grouptickclose = np.append(grouptickclose, [data["trade_price"]])
+                    else:
+                        grouptickclose = grouptickclose[1:65]
+                        grouptickclose = np.append(grouptickclose, [data["trade_price"]])
+                    tickprice = np.array([])
+
+                nowTime = time.strftime('%H:%M')
+                if nowTime != prevTime:
+                    df = pyupbit.get_ohlcv(ticker, 'minute1')
+                    df_close = df['close']
+                    df_volume = df['volume']
+
+                    #### minute candle moving average ####
+                    # minute_ma5 = df_close.rolling(5).mean()
+                    # minute_ma10 = df_close.rolling(10).mean()
+                    roll_ma20 = df_close.rolling(20)
+                    minute_ma20 = roll_ma20.mean()
+                    # minute_ma60 = df_close.rolling(60).mean()
+                    # minute_ma100 = df_close.rolling(100).mean()
+
+                    balance = upbit.get_balance("KRW")
+                    # print(nowTime,minute_ma5[199],minute_ma10[199],minute_ma20[199],minute_ma60[199],minute_ma100[199])
+                    # print(sectionRising(minute_ma5[189],minute_ma5[194],minute_ma5[199]))
+                    # rising_ma5 = sectionRising(minute_ma5[189],minute_ma5[194],minute_ma5[199])
+                    # rising_ma10 = sectionRising(minute_ma10[189], minute_ma10[194], minute_ma10[199])
+                    # rising_ma20 = sectionRising(minute_ma20[189], minute_ma20[194], minute_ma20[199])
+                    # rising_ma60 = sectionRising(minute_ma60[189], minute_ma60[194], minute_ma60[199])
+                    # rising_ma100 = sectionRising(minute_ma100[189], minute_ma100[194], minute_ma100[199])
+                    # print(rising_ma5,rising_ma10,rising_ma20,rising_ma60,rising_ma100)
+
+                    #### bollinger band coefficient = 2.4 ####
+                    bbl_last = bbl
+
+                    bbm = minute_ma20[199]
+                    bbl = bbm - roll_ma20.std()[199] * 2.4
+                    # bbu = bbm + roll_ma20.std()[199] * 2.4
+
+                    # print(round(bbl, 0), round(bbm, 0))
+                    print("BB 하단",round(bbl, 0))
+
+                #### 현재가가 BB low 아래에 있을 때 매수가 결정 ####
+                if data["trade_price"] < bbl and state == 'none' and balance >= buyprice:
+                    state = 'ready'
+                    if balance != init_balance:
+                        if abp > data["trade_price"]:
+                            buyprice = int(buyprice*1.1)
+                        else:
+                            buyprice = firstbuyprice
+                    if sellprice != 0:
+                        selluuid = sellorder['uuid']
+                        print('sell order =',selluuid)
+                    print(state,buyprice)
+                #### 30tick close 의 ma 10 가 ma 50 을 돌파할 때 매수####  ## 0526 update
+                if state == 'ready':
+                    tick30_ma50 = grouptickclose[15:65].mean()
+                    tick30_ma10last = grouptickclose[54:64].mean()
+                    tick30_ma10 = grouptickclose[55:65].mean()#;print(state)
+                    if tick30_ma10last <= tick30_ma50 < tick30_ma10 and np.isnan(tick30_ma50) == False:
+                        print('매수지점', data["trade_price"])
+                        buy=upbit.buy_market_order(ticker, buyprice)
+                        uuid=buy['uuid']
+                        print(uuid,type(uuid))
+                        state = 'buy';print(state)
+                        # buyprice += 1
+                #### 매수 한 다음 1분 중 매도가 결정 매도주문 ####
+                if state == 'buy' and nowTime != prevTime:
+                    state = 'none';print(state)
+                    boughtedbalance += buyprice
+                    boughtedvolume = upbit.get_balance(ticker)-init_volume
+                    abp = boughtedbalance/boughtedvolume
+                    print('누적 Balance =',boughtedbalance,'init Volume',init_volume,'누적 Volume =',round(boughtedvolume,2),'ABP =',round(abp,2))
+                    print('ABP+1%',round(abp*1.01,2),'ABP+2%',round(abp*1.02,2),'ABP+3%',round(abp*1.03,2))
+                          # ,'\n','매도주문')
+                    if sellprice == 0:
+                        sellprice = int(abp*(1+margin/100)/tic)*tic
+                    else:
+                        upbit.cancel_order(selluuid)
+                        sellprice = int(abp*(1+margin/100)/tic)*tic
+
+                    sellorder = upbit.sell_limit_order(ticker, sellprice, boughtedvolume)
+                    time.sleep(1)
+                    selluuid = sellorder['uuid']
+                    pprint.pprint(sellorder)
+
+
+                if nowTime != prevTime:
+                    #### 0526 update 매도 주문 체결 시 초기화 ####
+                    order = upbit.get_order(ticker, state="wait")
+                    sellstate = 0
+                    if len(order) != 0:
+                        for i in order:
+                            if i['uuid'] == selluuid:
+                                sellstate += 1
+                            else:
+                                sellstate += 0
+                        if sellstate == 0 and selluuid != '':
+                            boughtedbalance = 0;boughtedvolume = 0;sellprice = 0;selluuid=''
+                            init_balance = upbit.get_balance("KRW")
+                            init_volume = upbit.get_balance(ticker)
+                            print("매도체결\n","init_balance =", init_balance, "\ninit_volume =", init_volume)
+                    prevTime = nowTime
             except Exception as e:
                 print('힝')
-            data = json.loads(data)
-            # print(data)
-            ##### 30 tic close : tickprice[tickgroup-1] ####
-            if len(tickprice) < tickgroup:
-                tickprice = np.append(tickprice, [data["trade_price"]])
-            ##### grouptickclose for ma caculation ####
-            else:
-                if len(grouptickclose) < 65:
-                    grouptickclose = np.append(grouptickclose, [data["trade_price"]])
-                else:
-                    grouptickclose = grouptickclose[1:65]
-                    grouptickclose = np.append(grouptickclose, [data["trade_price"]])
-                tickprice = np.array([])
-
-            nowTime = time.strftime('%H:%M')
-            if nowTime != prevTime:
-                df = pyupbit.get_ohlcv(ticker, 'minute1')
-                df_close = df['close']
-                df_volume = df['volume']
-
-                #### minute candle moving average ####
-                # minute_ma5 = df_close.rolling(5).mean()
-                # minute_ma10 = df_close.rolling(10).mean()
-                roll_ma20 = df_close.rolling(20)
-                minute_ma20 = roll_ma20.mean()
-                # minute_ma60 = df_close.rolling(60).mean()
-                # minute_ma100 = df_close.rolling(100).mean()
-
-                balance = upbit.get_balance("KRW")
-                # print(nowTime,minute_ma5[199],minute_ma10[199],minute_ma20[199],minute_ma60[199],minute_ma100[199])
-                # print(sectionRising(minute_ma5[189],minute_ma5[194],minute_ma5[199]))
-                # rising_ma5 = sectionRising(minute_ma5[189],minute_ma5[194],minute_ma5[199])
-                # rising_ma10 = sectionRising(minute_ma10[189], minute_ma10[194], minute_ma10[199])
-                # rising_ma20 = sectionRising(minute_ma20[189], minute_ma20[194], minute_ma20[199])
-                # rising_ma60 = sectionRising(minute_ma60[189], minute_ma60[194], minute_ma60[199])
-                # rising_ma100 = sectionRising(minute_ma100[189], minute_ma100[194], minute_ma100[199])
-                # print(rising_ma5,rising_ma10,rising_ma20,rising_ma60,rising_ma100)
-
-                #### bollinger band coefficient = 2.4 ####
-                bbl_last = bbl
-
-                bbm = minute_ma20[199]
-                bbl = bbm - roll_ma20.std()[199] * 2.4
-                # bbu = bbm + roll_ma20.std()[199] * 2.4
-
-                # print(round(bbl, 0), round(bbm, 0))
-                print("BB 하단",round(bbl, 0))
-
-            #### 현재가가 BB low 아래에 있을 때 매수가 결정 ####
-            if data["trade_price"] < bbl and state == 'none' and balance >= buyprice:
-                state = 'ready'
-                if balance != init_balance:
-                    if abp > data["trade_price"]:
-                        buyprice = int(buyprice*1.1)
-                    else:
-                        buyprice = firstbuyprice
-                if sellprice != 0:
-                    selluuid = sellorder['uuid']
-                    print('sell order =',selluuid)
-                print(state,buyprice)
-            #### 30tick close 의 ma 10 가 ma 50 을 돌파할 때 매수####  ## 0526 update
-            if state == 'ready':
-                tick30_ma50 = grouptickclose[15:65].mean()
-                tick30_ma10last = grouptickclose[54:64].mean()
-                tick30_ma10 = grouptickclose[55:65].mean()#;print(state)
-                if tick30_ma10last <= tick30_ma50 < tick30_ma10 and np.isnan(tick30_ma50) == False:
-                    print('매수지점', data["trade_price"])
-                    buy=upbit.buy_market_order(ticker, buyprice)
-                    uuid=buy['uuid']
-                    print(uuid,type(uuid))
-                    state = 'buy';print(state)
-                    # buyprice += 1
-            #### 매수 한 다음 1분 중 매도가 결정 매도주문 ####
-            if state == 'buy' and nowTime != prevTime:
-                state = 'none';print(state)
-                boughtedbalance += buyprice
-                boughtedvolume = upbit.get_balance(ticker)-init_volume
-                abp = boughtedbalance/boughtedvolume
-                print('누적 Balance =',boughtedbalance,'init Volume',init_volume,'누적 Volume =',round(boughtedvolume,2),'ABP =',round(abp,2))
-                print('ABP+1%',round(abp*1.01,2),'ABP+2%',round(abp*1.02,2),'ABP+3%',round(abp*1.03,2))
-                      # ,'\n','매도주문')
-                if sellprice == 0:
-                    sellprice = int(abp*(1+margin/100)/tic)*tic
-                else:
-                    upbit.cancel_order(selluuid)
-                    sellprice = int(abp*(1+margin/100)/tic)*tic
-
-                sellorder = upbit.sell_limit_order(ticker, sellprice, boughtedvolume)
-                time.sleep(1)
-                selluuid = sellorder['uuid']
-                pprint.pprint(sellorder)
-
-
-            if nowTime != prevTime:
-                #### 0526 update 매도 주문 체결 시 초기화 ####
-                order = upbit.get_order(ticker, state="wait")
-                sellstate = 0
-                if len(order) != 0:
-                    for i in order:
-                        if i['uuid'] == selluuid:
-                            sellstate += 1
-                        else:
-                            sellstate += 0
-                    if sellstate == 0:
-                        boughtedbalance = 0;boughtedvolume = 0;sellprice = 0;selluuid=''
-                        init_balance = upbit.get_balance("KRW")
-                        init_volume = upbit.get_balance(ticker)
-                        print("매도체결\n","init_balance =", init_balance, "\ninit_volume =", init_volume)
-                prevTime = nowTime
-
 async def main(ticker):
     await upbit_ws_client(ticker)
 

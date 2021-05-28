@@ -47,7 +47,7 @@ async def upbit_ws_client(ticker):
     # 초기 설정
     init_balance = upbit.get_balance("KRW")
     init_volume = upbit.get_balance(ticker)
-    print("init_balance =", init_balance, "\ninit_volume =", init_volume)
+    # print("init_balance =", init_balance, "\ninit_volume =", init_volume)
     ####  ohlcv 변동 폭 계산 ####
     df = pyupbit.get_ohlcv(ticker, interval="minute240", count=10)
     lastlow = np.array(df['low'].tolist())
@@ -78,7 +78,7 @@ async def upbit_ws_client(ticker):
         tic = 0.1
     else:
         tic = 0.01
-    print(range, '\n마진 =', margin)
+    print('마진 =', margin)
     bbl_last = 0; bbl=0
 
 
@@ -166,12 +166,11 @@ async def upbit_ws_client(ticker):
                 tick30_ma10 = grouptickclose[55:65].mean()#;print(state)
                 if tick30_ma10last <= tick30_ma50 < tick30_ma10 and np.isnan(tick30_ma50) == False:
                     print('매수지점', data["trade_price"])
-                    if buyprice==firstbuyprice:
-                        buy=upbit.buy_market_order(ticker, buyprice)
-                        uuid=buy['uuid']
-                        print(uuid,type(uuid))
-                        state = 'buy';print(state)
-                        # buyprice += 1
+                    buy=upbit.buy_market_order(ticker, buyprice)
+                    uuid=buy['uuid']
+                    print(uuid,type(uuid))
+                    state = 'buy';print(state)
+                    # buyprice += 1
             #### 매수 한 다음 1분 중 매도가 결정 매도주문 ####
             if state == 'buy' and nowTime != prevTime:
                 state = 'none';print(state)

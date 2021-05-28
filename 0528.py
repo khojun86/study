@@ -217,5 +217,5 @@ nexthigh=np.array(df['high'].tolist())
 print(nexthigh[1:len(nexthigh)]);print(lastlow[0:len(nexthigh)-1])
 nexthigh=nexthigh[1:len(nexthigh)]
 lastlow=lastlow[0:len(lastlow)-1]
-print(nexthigh-lastlow)
+print(round((nexthigh-lastlow)/lastlow*100,3))
 asyncio.run(main(ticker))

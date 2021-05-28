@@ -57,28 +57,23 @@ async def upbit_ws_client(ticker):
     lastlow = lastlow[0:len(lastlow) - 1]
     # print((nexthigh-lastlow)/lastlow*100)
     range = (nexthigh - lastlow) / lastlow * 100
-    margin = float(np.mean(range) / 1.0)
+    df = pyupbit.get_ohlcv(ticker,count=1)
+    # pprint.pprint(df)
+    # print(df['high'],df['low'],(df['high']-df['low'])/df['low'])
+    dayrange=np.array((df['high']-df['low'])/df['low'])
+    margin = float(np.mean(range) / 3)+dayrange[-1] / 2
     ## tic 판단
     close = nexthigh[-1]
-    if close > 2000000:
-        tic = 1000
-    elif close > 1000000:
-        tic = 500
-    elif close > 500000:
-        tic = 100
-    elif close > 100000:
-        tic = 50
-    elif close > 10000:
-        tic = 10
-    elif close > 1000:
-        tic = 5
-    elif close > 100:
-        tic = 1
-    elif close > 10:
-        tic = 0.1
-    else:
-        tic = 0.01
-    print('마진 =', margin)
+    if close > 2000000: tic = 1000
+    elif close > 1000000: tic = 500
+    elif close > 500000: tic = 100
+    elif close > 100000: tic = 50
+    elif close > 10000: tic = 10
+    elif close > 1000: tic = 5
+    elif close > 100: tic = 1
+    elif close > 10: tic = 0.1
+    else: tic = 0.01
+    print('margin =', margin)
     bbl_last = 0; bbl=0
 
 
@@ -141,13 +136,12 @@ async def upbit_ws_client(ticker):
 
                     bbm = minute_ma20[199]
                     bbl = bbm - roll_ma20.std()[199] * 2.4
-                    # bbu = bbm + roll_ma20.std()[199] * 2.4
+                    bbu = bbm + roll_ma20.std()[199] * 2.4
 
-                    # print(round(bbl, 0), round(bbm, 0))
-                    print("BB 하단",round(bbl, 0))
+                    # print(round(bbl, 0), round(bbm, 0));print("BB 하단",round(bbl, 0))
 
                 #### 현재가가 BB low 아래에 있을 때 매수가 결정 ####
-                if data["trade_price"] < bbl and state == 'none' and balance >= buyprice:
+                if data["trade_price"] < bbl and state == 'none' and balance >= buyprice and len(grouptickclose) == 65:
                     state = 'ready'
                     if balance != init_balance:
                         if abp > data["trade_price"]:
@@ -157,8 +151,8 @@ async def upbit_ws_client(ticker):
                     if sellprice != 0:
                         selluuid = sellorder['uuid']
                         print('sell order =',selluuid)
-                    print(state,buyprice)
-                #### 30tick close 의 ma 10 가 ma 50 을 돌파할 때 매수####  ## 0526 update
+                    print(time.strftime('%H:%M'),buyprice,"원 준비")
+                #### 30tick close 의 ma 10 가 ma 30 을 돌파할 때 매수####  ## 0817 update
                 if state == 'ready':
                     tick30_ma50 = grouptickclose[15:65].mean()
                     tick30_ma10last = grouptickclose[54:64].mean()
@@ -218,7 +212,7 @@ access_key = "GFexnbUxVxmu1ClL5oNaedEdGYwX4ZSzdcwn0806"
 secret_key = "TS2cSWkl0vUkwGgmxQmyCdgeLydxNBlYacbowHp5"
 
 upbit = pyupbit.Upbit(access_key, secret_key)
-print("init_balance =",upbit.get_balance("KRW"),"\ninit_volume =",upbit.get_balance(ticker))
-
+# print("init_balance =",upbit.get_balance("KRW"),"\ninit_volume =",upbit.get_balance(ticker))
+print("init_balance =\033[31m",upbit.get_balance("KRW"),"\033[30m")
 
 asyncio.run(main(ticker))

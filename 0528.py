@@ -44,6 +44,7 @@ async def upbit_ws_client(ticker):
     boughtedbalance = 0;boughtedvolume = 0;boughtedprice = 0
     grouptickclose = np.array([])
     state = 'none'
+    global init_volume, margin
     bbl_last = 0; bbl=0
     # margin=2.5
 

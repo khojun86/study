@@ -46,27 +46,7 @@ async def upbit_ws_client(ticker):
     state = 'none'
     bbl_last = 0; bbl=0
     # margin=2.5
-    # 초기 설정
-    close = pyupbit.get_ohlcv(ticker, 'minute1', 1)
-    close = close['close']
-    if close[0] > 2000000:
-        tic = 1000
-    elif close[0] > 1000000:
-        tic = 500
-    elif close[0] > 500000:
-        tic = 100
-    elif close[0] > 100000:
-        tic = 50
-    elif close[0] > 10000:
-        tic = 10
-    elif close[0] > 1000:
-        tic = 5
-    elif close[0] > 100:
-        tic = 1
-    elif close[0] > 10:
-        tic = 0.1
-    else:
-        tic = 0.01
+
 
     async with websockets.connect(url) as websocket:
         subscribe_fmt = [
@@ -218,5 +198,27 @@ lastlow=lastlow[0:len(lastlow)-1]
 #print((nexthigh-lastlow)/lastlow*100)
 range=(nexthigh-lastlow)/lastlow*100
 margin=float(np.mean(range)/1.5)
-print(range,"\n마진",margin)
+
+# 초기 설정
+close = nexthigh[-1]
+if close > 2000000:
+    tic = 1000
+elif close > 1000000:
+    tic = 500
+elif close > 500000:
+    tic = 100
+elif close > 100000:
+    tic = 50
+elif close > 10000:
+    tic = 10
+elif close > 1000:
+    tic = 5
+elif close > 100:
+    tic = 1
+elif close > 10:
+    tic = 0.1
+else:
+    tic = 0.01
+
+print(range)
 asyncio.run(main(ticker))

@@ -220,5 +220,5 @@ elif close > 10:
 else:
     tic = 0.01
 
-print(range)
+print(range,'\n마진 =',margin)
 asyncio.run(main(ticker))

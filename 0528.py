@@ -44,9 +44,42 @@ async def upbit_ws_client(ticker):
     boughtedbalance = 0;boughtedvolume = 0;boughtedprice = 0
     grouptickclose = np.array([])
     state = 'none'
-    global init_volume, margin
+    # 초기 설정
+    init_balance = upbit.get_balance("KRW")
+    init_volume = upbit.get_balance(ticker)
+    print("init_balance =", init_balance, "\ninit_volume =", init_volume)
+    ####  ohlcv 변동 폭 계산 ####
+    df = pyupbit.get_ohlcv(ticker, interval="minute240", count=10)
+    lastlow = np.array(df['low'].tolist())
+    nexthigh = np.array(df['high'].tolist())
+    # print(nexthigh[1:len(nexthigh)]);print(lastlow[0:len(nexthigh)-1])
+    nexthigh = nexthigh[1:len(nexthigh)]
+    lastlow = lastlow[0:len(lastlow) - 1]
+    # print((nexthigh-lastlow)/lastlow*100)
+    range = (nexthigh - lastlow) / lastlow * 100
+    margin = float(np.mean(range) / 1.5)
+    ## tic 판단
+    close = nexthigh[-1]
+    if close > 2000000:
+        tic = 1000
+    elif close > 1000000:
+        tic = 500
+    elif close > 500000:
+        tic = 100
+    elif close > 100000:
+        tic = 50
+    elif close > 10000:
+        tic = 10
+    elif close > 1000:
+        tic = 5
+    elif close > 100:
+        tic = 1
+    elif close > 10:
+        tic = 0.1
+    else:
+        tic = 0.01
+    print(range, '\n마진 =', margin)
     bbl_last = 0; bbl=0
-    # margin=2.5
 
 
     async with websockets.connect(url) as websocket:
@@ -143,7 +176,7 @@ async def upbit_ws_client(ticker):
             if state == 'buy' and nowTime != prevTime:
                 state = 'none';print(state)
                 boughtedbalance += buyprice
-                boughtedvolume += upbit.get_balance(ticker)-init_volume
+                boughtedvolume = upbit.get_balance(ticker)-init_volume
                 abp = boughtedbalance/boughtedvolume
                 print('누적 Balance =',boughtedbalance,'init Volume',init_volume,'누적 Volume =',round(boughtedvolume,2),'ABP =',round(abp,2))
                 print('ABP+1%',round(abp*1.01,2),'ABP+2%',round(abp*1.02,2),'ABP+3%',round(abp*1.03,2))
@@ -186,40 +219,7 @@ access_key = "GFexnbUxVxmu1ClL5oNaedEdGYwX4ZSzdcwn0806"
 secret_key = "TS2cSWkl0vUkwGgmxQmyCdgeLydxNBlYacbowHp5"
 
 upbit = pyupbit.Upbit(access_key, secret_key)
-init_balance = upbit.get_balance("KRW")
-init_volume = upbit.get_balance(ticker)
-print("init_balance =",init_balance,"\ninit_volume =",init_volume)
-####  ohlcv 변동 폭 계산 ####
-df=pyupbit.get_ohlcv(ticker,interval="minute240",count=10)
-lastlow=np.array(df['low'].tolist())
-nexthigh=np.array(df['high'].tolist())
-#print(nexthigh[1:len(nexthigh)]);print(lastlow[0:len(nexthigh)-1])
-nexthigh=nexthigh[1:len(nexthigh)]
-lastlow=lastlow[0:len(lastlow)-1]
-#print((nexthigh-lastlow)/lastlow*100)
-range=(nexthigh-lastlow)/lastlow*100
-margin=float(np.mean(range)/1.5)
+print("init_balance =",upbit.get_balance("KRW"),"\ninit_volume =",upbit.get_balance(ticker))
 
-# 초기 설정
-close = nexthigh[-1]
-if close > 2000000:
-    tic = 1000
-elif close > 1000000:
-    tic = 500
-elif close > 500000:
-    tic = 100
-elif close > 100000:
-    tic = 50
-elif close > 10000:
-    tic = 10
-elif close > 1000:
-    tic = 5
-elif close > 100:
-    tic = 1
-elif close > 10:
-    tic = 0.1
-else:
-    tic = 0.01
 
-print(range,'\n마진 =',margin)
 asyncio.run(main(ticker))

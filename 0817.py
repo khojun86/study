@@ -222,9 +222,18 @@ async def upbit_ws_client(ticker):
                 #     #         init_volume = upbit.get_balance(ticker)
                 #     #         print("매도체결\n","init_balance =", init_balance, "\ninit_volume =", init_volume)
                 #
-                #     #### 0817 update 매도 주문 힝 발생 시
-                #     # 연구필요
-                #
+                    #### 0817 update 매도 주문 힝 발생 시
+                    # 연구필요
+                    if selluuid!='':
+                        curr_order=upbit.get_order(ticker)
+                        if len(curr_order)==0:
+                            print('오류남Bought Balance =',boughtedbalance,'Bought Volume =',round(boughtedvolume,2),'ABP =',round(abp,2))
+                            sellprice = int(abp * (1 + margin / 100) / tic) * tic
+                            print('그래서Bought Balance =', boughtedbalance, 'Bought Volume =', round(boughtedvolume, 2),'ABP =', round(abp, 2))
+                            print(time.strftime('%H:%M'), "매도가 ABP+", margin, "% = ", sellprice)
+                            sellorder = upbit.sell_limit_order(ticker, sellprice, boughtedvolume)
+                            time.sleep(2)
+                            selluuid = sellorder['uuid']
                 #     #### 0817 update 매도 가 이상 도달 시
                 #     if sellprice !=0 and data["trade_price"]>sellprice:
                 #         print("헹")

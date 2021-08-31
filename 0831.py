@@ -20,7 +20,7 @@ def cal_margin():
     df = pyupbit.get_ohlcv(ticker, count=1)
     dayrange = np.array((df['high'] - df['low']) / df['low'])
     margin=float(np.mean(range) / 2.8) + dayrange[-1] / 1.5
-    print('margin =', margin)
+    # print('margin =', margin)
     return margin
 
 
@@ -233,7 +233,7 @@ async def upbit_ws_client(ticker):
                             time.sleep(2)
                             selluuid = sellorder['uuid']
                     prevTime = nowTime
-                    margin=schedule.every(60).minutes.do(cal_margin())
+                    margin=cal_margin()
             except Exception as e:
                 print('힝')
 

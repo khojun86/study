@@ -6,6 +6,7 @@ import telegram
 import asyncio
 import json
 import numpy as np
+import schedule
 import pprint
 
 
@@ -18,7 +19,9 @@ def cal_margin():
     range = (nexthigh - lastlow) / lastlow * 100
     df = pyupbit.get_ohlcv(ticker, count=1)
     dayrange = np.array((df['high'] - df['low']) / df['low'])
-    return float(np.mean(range) / 2.8) + dayrange[-1] / 1.5
+    margin=float(np.mean(range) / 2.8) + dayrange[-1] / 1.5
+    print('margin =', margin)
+    return margin
 
 
 async def upbit_ws_client(ticker):
@@ -70,7 +73,7 @@ async def upbit_ws_client(ticker):
         tic = 0.1
     else:
         tic = 0.01
-    print('margin =', margin)
+
     bbl_last = 0;bbl = 0
 
     ## 초기 주문 있을 때 대응
@@ -230,7 +233,7 @@ async def upbit_ws_client(ticker):
                             time.sleep(2)
                             selluuid = sellorder['uuid']
                     prevTime = nowTime
-                    margin=cal_margin()
+                    schedule.every(60).minutes.do(cal_margin())
             except Exception as e:
                 print('힝')
 

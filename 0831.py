@@ -157,13 +157,13 @@ async def upbit_ws_client(ticker):
                         boughtedvolume = 0
                         sellprice = 0
                         selluuid = ''
-                        abp = 0
+                        # abp = 0
                         ####0831 update abp 초기화 ####
                         init_balance = balance
                         init_volume = upbit.get_balance(ticker)
                         print("매도확인 =\033[31m", init_balance, "\033[0m")
                         #### telegram alarm ####
-                        bot.sendMessage(chat_id=tlgm_id, text='현재' + str(init_balance))
+                        # bot.sendMessage(chat_id=tlgm_id, text='현재' + str(init_balance))
 
                 #### 현재가가 BB low 아래에 있을 때 매수 결정 ####
                 if data["trade_price"] < bbl and state == 'none' and balance >= buyprice and len(

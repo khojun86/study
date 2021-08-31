@@ -233,7 +233,7 @@ async def upbit_ws_client(ticker):
                             time.sleep(2)
                             selluuid = sellorder['uuid']
                     prevTime = nowTime
-                    schedule.every(60).minutes.do(cal_margin())
+                    margin=schedule.every(60).minutes.do(cal_margin())
             except Exception as e:
                 print('힝')
 

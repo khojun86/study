@@ -19,7 +19,7 @@ def cal_margin():
     range = (nexthigh - lastlow) / lastlow * 100
     df = pyupbit.get_ohlcv(ticker, count=1)
     dayrange = np.array((df['high'] - df['low']) / df['low'])
-    margin=float(np.mean(range) / 2.8) + dayrange[-1] / 1.5
+    margin=float(np.mean(range) / 2.6) + dayrange[-1] / 1.5
     # print('margin =', margin)
     return margin
 

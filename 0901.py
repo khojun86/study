@@ -21,7 +21,7 @@ def cal_margin():
     # dayrange = np.array((df['high'] - df['low']) / df['low'])
     dayrange = df['open']/df['low']
     margin=float(np.mean(range) / 3.5) + dayrange[-1] / 3.5
-    print('margin =', margin)
+    # print('margin =', margin)
     return margin
 
 

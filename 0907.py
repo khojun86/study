@@ -95,6 +95,7 @@ async def upbit_ws_client(ticker):
         sellorder = upbit.sell_limit_order(ticker, tmpsellprice, boughtedvolume)
         time.sleep(2)
         selluuid = sellorder['uuid']
+        print(time.strftime('%H:%M'), "매도가 ABP+", margin, "% = ", tmpsellprice)
     ## 초기 volume 있을 때 대응
     if init_volume > 0.001:
         remains = upbit.get_balances()[1]
@@ -105,6 +106,7 @@ async def upbit_ws_client(ticker):
         sellorder = upbit.sell_limit_order(ticker, tmpsellprice, boughtedvolume)
         time.sleep(2)
         selluuid = sellorder['uuid']
+        print(time.strftime('%H:%M'), "매도가 ABP+", margin, "% = ", tmpsellprice)
 
 
     async with websockets.connect(url) as websocket:
@@ -218,7 +220,7 @@ async def upbit_ws_client(ticker):
                         time.sleep(2)
                         sellprice = int(abp * (1 + margin / 100) / tic) * tic
                         time.sleep(2)
-                    # print(time.strftime('%H:%M'), "매도가 ABP+", margin, "% = ", sellprice)
+                    print(time.strftime('%H:%M'), "매도가 ABP+", margin, "% = ", sellprice)
                     sellorder = upbit.sell_limit_order(ticker, sellprice, boughtedvolume)
                     time.sleep(2)
                     selluuid = sellorder['uuid']

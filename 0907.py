@@ -97,7 +97,7 @@ async def upbit_ws_client(ticker):
         selluuid = sellorder['uuid']
         print(time.strftime('%H:%M'), "매도가 ABP+", margin, "% = ", tmpsellprice)
     ## 초기 volume 있을 때 대응
-    if init_volume > 0.001:
+    if float(upbit.get_balances()[1]['balance']) > 0.001:
         remains = upbit.get_balances()[1]
         ordered_abp = remains['avg_buy_price']
         boughtedvolume = init_volume

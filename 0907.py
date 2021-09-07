@@ -90,7 +90,7 @@ async def upbit_ws_client(ticker):
         upbit.cancel_order(init_order[0]['uuid'])
         time.sleep(1)
         boughtedbalance = ordered_totalbalance
-        boughtedvolume = ordered_volume
+        boughtedvolume = init_volume
         tmpsellprice = int(float(ordered_abp) * (1 + margin / 100) / tic) * tic
         sellorder = upbit.sell_limit_order(ticker, tmpsellprice, boughtedvolume)
         time.sleep(2)
@@ -98,14 +98,14 @@ async def upbit_ws_client(ticker):
         print(time.strftime('%H:%M'), "매도가 ABP+", margin, "% = ", tmpsellprice)
         time.sleep(2)
     ## 초기 volume 있을 때 대응
-    if float(upbit.get_balances()[1]['balance']) > 0.001:
+    if float(upbit.get_balances()[1]['balance']) > 0.001 and len(init_order) == 0:
         remains = upbit.get_balances()[1]
         ordered_abp = remains['avg_buy_price']
         boughtedvolume = init_volume
         boughtedbalance = float(ordered_abp) * float(boughtedvolume)
         tmpsellprice = int(float(ordered_abp) * (1 + margin / 100) / tic) * tic
         sellorder = upbit.sell_limit_order(ticker, tmpsellprice, boughtedvolume)
-        print(tmpsellprice,boughtedvolume)
+        # print(tmpsellprice,boughtedvolume)
         time.sleep(2)
         selluuid = sellorder['uuid']
         print(time.strftime('%H:%M'), "매도가 ABP+", margin, "% = ", tmpsellprice)

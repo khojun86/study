@@ -238,8 +238,8 @@ async def upbit_ws_client(ticker):
                 print('힝')
                 #### 0907 update ####
                 #### 혹시라도 1006 터지면 재시작하기####
-                sys.stdout.flush()
-                os.execv(sys.argv[0], sys.argv)
+                # sys.stdout.flush()
+                os.execl(sys.executable, sys.executable, *sys.argv)
 
 
 async def main(ticker):

@@ -82,7 +82,7 @@ async def upbit_ws_client(ticker):
     init_order = upbit.get_order(ticker)
     if len(init_order) != 0:
         # print(init_order[0])
-        remains = upbit.get_balances()[1]['avg_buy_price']
+        remains = upbit.get_balances()[1]
         ordered_abp = remains['avg_buy_price']
         ordered_volume = remains['locked']
         ordered_totalbalance = float(ordered_abp) * float(ordered_volume)

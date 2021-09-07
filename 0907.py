@@ -91,7 +91,7 @@ async def upbit_ws_client(ticker):
         time.sleep(1)
         boughtedbalance = ordered_totalbalance
         boughtedvolume = ordered_volume
-        tmpsellprice = int(ordered_abp * (1 + margin / 100) / tic) * tic
+        tmpsellprice = int(float(ordered_abp) * (1 + margin / 100) / tic) * tic
         sellorder = upbit.sell_limit_order(ticker, tmpsellprice, boughtedvolume)
         time.sleep(2)
         selluuid = sellorder['uuid']
@@ -101,6 +101,11 @@ async def upbit_ws_client(ticker):
         ordered_abp = remains['avg_buy_price']
         boughtedvolume = init_volume
         boughtedbalance = float(ordered_abp) * float(boughtedvolume)
+        tmpsellprice = int(float(ordered_abp) * (1 + margin / 100) / tic) * tic
+        sellorder = upbit.sell_limit_order(ticker, tmpsellprice, boughtedvolume)
+        time.sleep(2)
+        selluuid = sellorder['uuid']
+
 
     async with websockets.connect(url) as websocket:
         subscribe_fmt = [{"ticket": "test00"}, {"type": "trade", "codes": [ticker], "isOnlyRealtime": True}]

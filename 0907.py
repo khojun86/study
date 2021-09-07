@@ -207,23 +207,25 @@ async def upbit_ws_client(ticker):
                 if state == 'buy' and nowTime != prevTime:
                     state = 'none'
                     # print(state)
-                    inpocket=upbit.get_balances()[1]
-                    # print(boughtedbalance)
-                    boughtedvolume = float(inpocket['locked']) + float(inpocket['balance'])
-                    boughtedbalance = float(inpocket['avg_buy_price'])*boughtedvolume
-
-                    # print(boughtedvolume)
-                    abp = boughtedbalance / boughtedvolume
-                    print('매수총액 =', round(boughtedbalance,2), '보유수량 =', round(boughtedvolume, 2), '평단가 =',
-                          round(abp, 2))
+                    # abp = boughtedbalance / boughtedvolume
+                    # print('매수총액 =', round(boughtedbalance,2), '보유수량 =', round(boughtedvolume, 2), '평단가 =',
+                    #       round(abp, 2))
                     # print('판매가 =', sellprice)
+                    inpocket = upbit.get_balances()[1]
+                    abp = float(inpocket['avg_buy_price'])
                     if sellprice == 0:
                         sellprice = int(abp * (1 + margin / 100) / tic) * tic
+                        print('판매가 =', sellprice)
                     else:
                         upbit.cancel_order(selluuid)
                         time.sleep(2)
                         sellprice = int(abp * (1 + margin / 100) / tic) * tic
-                        time.sleep(2)
+                        print('판매가 =', sellprice)
+
+                    pprint.pprint(inpocket)
+                    boughtedvolume = float(inpocket['balance'])
+                    boughtedbalance = float(inpocket['avg_buy_price'])*boughtedvolume
+                    print('매수총액 =', round(boughtedbalance, 2), '보유수량 =', round(boughtedvolume, 2), '평단가 =',round(abp, 2))
                     print(time.strftime('%H:%M'), "매도가 ABP+", margin, "% = ", sellprice)
                     sellorder = upbit.sell_limit_order(ticker, sellprice, boughtedvolume)
                     time.sleep(2)

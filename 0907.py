@@ -96,6 +96,7 @@ async def upbit_ws_client(ticker):
         time.sleep(2)
         selluuid = sellorder['uuid']
         print(time.strftime('%H:%M'), "매도가 ABP+", margin, "% = ", tmpsellprice)
+        time.sleep(2)
     ## 초기 volume 있을 때 대응
     if float(upbit.get_balances()[1]['balance']) > 0.001:
         remains = upbit.get_balances()[1]
@@ -107,6 +108,7 @@ async def upbit_ws_client(ticker):
         time.sleep(2)
         selluuid = sellorder['uuid']
         print(time.strftime('%H:%M'), "매도가 ABP+", margin, "% = ", tmpsellprice)
+        time.sleep(2)
 
 
     async with websockets.connect(url) as websocket:

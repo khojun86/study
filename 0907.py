@@ -210,8 +210,7 @@ async def upbit_ws_client(ticker):
                     inpocket=upbit.get_balances()[1]
                     boughtedbalance = float(inpocket['avg_buy_price'])
                     # print(boughtedbalance)
-                    boughtedvolume = float(inpocket['locked']) + float(
-                        inpocket[1]['balance'])
+                    boughtedvolume = float(inpocket['locked']) + float(inpocket['balance'])
                     # print(boughtedvolume)
                     abp = boughtedbalance / boughtedvolume
                     print('매수총액 =', round(boughtedbalance,2), '보유수량 =', round(boughtedvolume, 2), '평단가 =',

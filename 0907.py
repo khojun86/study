@@ -82,7 +82,7 @@ async def upbit_ws_client(ticker):
     init_order = upbit.get_order(ticker)
     if len(init_order) != 0:
         # print(init_order[0])
-        remains = upbit.get_balances()[1]
+        remains = upbit.get_balances()[1]['avg_buy_price']
         ordered_abp = remains['avg_buy_price']
         ordered_volume = remains['locked']
         ordered_totalbalance = float(ordered_abp) * float(ordered_volume)
@@ -207,10 +207,11 @@ async def upbit_ws_client(ticker):
                 if state == 'buy' and nowTime != prevTime:
                     state = 'none'
                     # print(state)
-                    boughtedbalance += buyprice
+                    inpocket=upbit.get_balances()[1]
+                    boughtedbalance = float(inpocket['avg_buy_price'])
                     # print(boughtedbalance)
-                    boughtedvolume = float(upbit.get_balances()[1]['locked']) + float(
-                        upbit.get_balances()[1]['balance'])
+                    boughtedvolume = float(inpocket['locked']) + float(
+                        inpocket[1]['balance'])
                     # print(boughtedvolume)
                     abp = boughtedbalance / boughtedvolume
                     print('매수총액 =', round(boughtedbalance,2), '보유수량 =', round(boughtedvolume, 2), '평단가 =',
